@@ -1,3 +1,27 @@
+INTRODUCTION:
+
+This is a private fork of https://gitlab.com/duplicity/duplicity.
+It is not intended for widespread usage. Use the above mentioned upstream
+URL instead.
+
+This fork only provides a single (largely untested feature):
+
+ - When executing a restore with the S3 backend with Glacier it starts unfreezing all
+   necessary volumes at once.
+   The upstream duplicity code starts an unfreeze for a single volume, then
+   waits for the unfreeze to finish to actually download it. Only if that
+   was fully processed it continues to the next volume where it does the
+   same. So you have to pay the unfreeze time for each volume in Glacier
+   again. This adds up very quick and renders a restore via duplicity
+   nearly unsable.
+   An alternative would be unfreezing manually via the S3 console or a CLI
+   tool. However that requires the knowledge of the files that are actually
+   necessary for the restore. Duplicity has this knowledge already.
+   This patch starts the unfreezing for all volumes at the same time, each
+   in another thread.
+   This patch has only been implemented for the boto backend, but not for
+   the boto3 backend.
+
 INSTALLATION:
 
 Thank you for trying duplicity.  To install, run:
